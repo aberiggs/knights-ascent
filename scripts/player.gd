@@ -6,9 +6,12 @@ extends CharacterBody2D
 @export var gravity_scale: float = 0.5
 @export var wall_slide_speed: float = 50.0 # Max falling speed when sliding on wall
 @export var max_movement_cooldown: float = 200.0 # Time in milliseconds before player can move again
+@export var damage_cooldown_time: float = 0.25 # Cooldown in seconds between damage applications
 
 var spawn_position: Vector2
 var movement_cooldown: float = 0.0 # Time in milliseconds before player can move again
+var is_attacking: bool = false
+var damage_cooldown: float = 0.0
 
 func _ready() -> void:
 	# Store the initial spawn position
@@ -22,8 +25,19 @@ func _ready() -> void:
 		if bottom_boundary and bottom_boundary.has_signal("body_entered"):
 			bottom_boundary.body_entered.connect(_on_bottom_boundary_body_entered)
 
+	# Connect to animation finished signal if animated_sprite exists
+	if $AnimatedSprite2D:
+		$AnimatedSprite2D.animation_finished.connect(_on_animation_finished)
 
 func _physics_process(delta: float) -> void:
+	# Update damage cooldown
+	if damage_cooldown > 0:
+		damage_cooldown -= delta
+
+	# Check for attack input
+	if Input.is_action_just_pressed("attack") and not is_attacking and damage_cooldown <= 0:
+		start_attack()
+
 	# Check if player is on a wall (not on floor)
 	var is_on_wall_now := is_on_wall() and not is_on_floor()
 	var wall_normal := get_wall_normal() if is_on_wall_now else Vector2.ZERO
@@ -81,3 +95,19 @@ func reset_position() -> void:
 func apply_damage() -> void:
 	"""Apply damage to the player. For now, just resets position."""
 	reset_position()
+
+func start_attack() -> void:
+	"""Start the attack animation and freeze movement."""
+	if $AnimatedSprite2D and $AnimatedSprite2D.sprite_frames.has_animation("hammer_swing"):
+		is_attacking = true
+		$AnimatedSprite2D.play("hammer_swing")
+
+func _on_animation_finished() -> void:
+	"""Called when an animation finishes. Apply damage if attack animation finished."""
+	if is_attacking and $AnimatedSprite2D.animation == "hammer_swing":
+		is_attacking = false
+		
+		# Set cooldown and return to default animation
+		damage_cooldown = damage_cooldown_time
+		if $AnimatedSprite2D.sprite_frames.has_animation("idle"):
+			$AnimatedSprite2D.play("idle")
