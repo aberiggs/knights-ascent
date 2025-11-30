@@ -1,11 +1,11 @@
 extends CharacterBody2D
 
 
-@export var speed: float = 120.0
-@export var jump_velocity: float = -250
-@export var gravity_scale: float = 1.0
+@export var speed: float = 75.0
+@export var jump_velocity: float = -125.0
+@export var gravity_scale: float = 0.5
 @export var wall_slide_speed: float = 50.0 # Max falling speed when sliding on wall
-@export var max_movement_cooldown: float = 100.0 # Time in milliseconds before player can move again
+@export var max_movement_cooldown: float = 200.0 # Time in milliseconds before player can move again
 
 var spawn_position: Vector2
 var movement_cooldown: float = 0.0 # Time in milliseconds before player can move again
@@ -77,3 +77,7 @@ func reset_position() -> void:
 	"""Reset player to spawn position and stop velocity."""
 	global_position = spawn_position
 	velocity = Vector2.ZERO
+
+func apply_damage() -> void:
+	"""Apply damage to the player. For now, just resets position."""
+	reset_position()

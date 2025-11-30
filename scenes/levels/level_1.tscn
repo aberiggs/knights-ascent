@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=4 uid="uid://dljrhdbc2nk1g"]
+[gd_scene load_steps=17 format=4 uid="uid://dljrhdbc2nk1g"]
 
 [ext_resource type="Texture2D" uid="uid://7pbrxh52a8n3" path="res://assets/tile_sets/Castle.png" id="1_ksju7"]
 [ext_resource type="Texture2D" uid="uid://dsu0vb1x7tya8" path="res://assets/tile_sets/Castle [Background Bricks].png" id="2_nsrm0"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://dtcbncjg42ggo" path="res://scenes/player.tscn" id="4_x42e6"]
 [ext_resource type="Texture2D" uid="uid://5cya4fntmrt0" path="res://assets/tile_sets/Bridges [Stone].png" id="5_sk5k4"]
 [ext_resource type="Script" uid="uid://cwmkf2mlo8k72" path="res://scripts/camera.gd" id="6_oc4kc"]
+[ext_resource type="PackedScene" uid="uid://rurtw1bauswm" path="res://scenes/skeleton.tscn" id="8_s8va5"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_s8va5"]
 texture = ExtResource("2_nsrm0")
@@ -402,17 +403,13 @@ tile_map_data = PackedByteArray("AAAAAP7/AAACAAEAAAABAP7/AAACAAEAAAACAP7/AAACAAE
 tile_set = SubResource("TileSet_nsrm0")
 
 [node name="Camera2D" type="Camera2D" parent="." node_paths=PackedStringArray("player")]
-position = Vector2(120, -80)
+position = Vector2(120, -64)
 zoom = Vector2(5, 5)
 script = ExtResource("6_oc4kc")
 player = NodePath("../Player")
 
 [node name="Player" parent="." instance=ExtResource("4_x42e6")]
-position = Vector2(112, -304)
-speed = 75.0
-jump_velocity = -125.0
-gravity_scale = 0.5
-max_movement_cooldown = 200.0
+position = Vector2(24, -16)
 
 [node name="LeftBoundary" type="StaticBody2D" parent="."]
 
@@ -432,3 +429,6 @@ shape = SubResource("WorldBoundaryShape2D_x42e6")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="BottomBoundary"]
 position = Vector2(120, 64)
 shape = SubResource("WorldBoundaryShape2D_x42e6")
+
+[node name="Skeleton" parent="." instance=ExtResource("8_s8va5")]
+position = Vector2(96, -296)
