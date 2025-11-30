@@ -10,7 +10,8 @@ config_version=5
 
 [application]
 
-config/name="game1"
+config/name="Knight's Ascent"
+config/version="0.0"
 run/main_scene="uid://dljrhdbc2nk1g"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
