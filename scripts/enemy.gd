@@ -16,6 +16,8 @@ var player: CharacterBody2D = null
 var is_attacking: bool = false
 
 func _ready() -> void:
+	add_to_group("enemies")
+
 	# Find the player in the scene tree
 	var scene_root = get_tree().current_scene
 	if scene_root:
@@ -91,3 +93,10 @@ func is_facing_player() -> bool:
 	if player:
 		return (direction > 0 and global_position.x < player.global_position.x) or (direction < 0 and global_position.x > player.global_position.x)
 	return false
+
+func apply_damage() -> void:
+	"""Apply damage to the enemy."""
+	# TODO: Implement proper damage logic
+
+	# For now, delete the enemy	
+	queue_free()

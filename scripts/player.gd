@@ -25,9 +25,10 @@ func _ready() -> void:
 		if bottom_boundary and bottom_boundary.has_signal("body_entered"):
 			bottom_boundary.body_entered.connect(_on_bottom_boundary_body_entered)
 
-	# Connect to animation finished signal if animated_sprite exists
-	if $AnimatedSprite2D:
-		$AnimatedSprite2D.animation_finished.connect(_on_animation_finished)
+	# Connect to animation finished signal if animation player exists
+	if $Body/AnimationPlayer:
+		print("Connected to animation finished signal")
+		$Body/AnimationPlayer.animation_finished.connect(_on_animation_finished)
 
 func _physics_process(delta: float) -> void:
 	# Update damage cooldown
@@ -78,7 +79,8 @@ func _physics_process(delta: float) -> void:
 		movement_cooldown = max_movement_cooldown
 	
 	if (velocity.x != 0):
-		$AnimatedSprite2D.flip_h = velocity.x < 0
+		# Flip the body based on the velocity
+		$Body.scale.x = sign(velocity.x)
 
 	move_and_slide()
 
@@ -86,6 +88,16 @@ func _on_bottom_boundary_body_entered(body: Node2D) -> void:
 	# Reset position when player enters the bottom boundary
 	if body == self:
 		reset_position()
+
+func _on_animation_finished(anim_name: String) -> void:
+	"""Called when an animation finishes. Reset to idle animation."""
+	if $Body/AnimationPlayer and $Body/AnimationPlayer.has_animation("idle"):
+		$Body/AnimationPlayer.play("idle")
+
+	if $Body/AnimationPlayer and anim_name == "attack":
+		# Reset attack state
+		is_attacking = false
+		$Body/AttackHitbox.monitoring = false
 
 func reset_position() -> void:
 	"""Reset player to spawn position and stop velocity."""
@@ -98,16 +110,19 @@ func apply_damage() -> void:
 
 func start_attack() -> void:
 	"""Start the attack animation and freeze movement."""
-	if $AnimatedSprite2D and $AnimatedSprite2D.sprite_frames.has_animation("hammer_swing"):
+	if $Body/AnimationPlayer and $Body/AnimationPlayer.has_animation("attack"):
 		is_attacking = true
-		$AnimatedSprite2D.play("hammer_swing")
+		$Body/AnimationPlayer.play("attack")
+		$Body/AttackHitbox.monitoring = true
 
-func _on_animation_finished() -> void:
-	"""Called when an animation finishes. Apply damage if attack animation finished."""
-	if is_attacking and $AnimatedSprite2D.animation == "hammer_swing":
-		is_attacking = false
-		
-		# Set cooldown and return to default animation
-		damage_cooldown = damage_cooldown_time
-		if $AnimatedSprite2D.sprite_frames.has_animation("idle"):
-			$AnimatedSprite2D.play("idle")
+func perform_attack_hitcheck() -> void:
+	"""Perform a hit check for the attack."""
+	var hitbox = $Body/AttackHitbox
+
+	var hit_enemies = hitbox.get_overlapping_bodies()
+	for enemy in hit_enemies:
+		if enemy.is_in_group("enemies"):
+			enemy.apply_damage()
+
+	is_attacking = false
+	$Body/AttackHitbox.monitoring = false

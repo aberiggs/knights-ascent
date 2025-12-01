@@ -409,7 +409,7 @@ script = ExtResource("6_oc4kc")
 player = NodePath("../Player")
 
 [node name="Player" parent="." instance=ExtResource("4_x42e6")]
-position = Vector2(24, -16)
+position = Vector2(32, -296)
 gravity_scale = 0.55
 wall_slide_speed = 75.0
 
