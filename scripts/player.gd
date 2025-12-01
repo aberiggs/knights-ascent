@@ -6,14 +6,14 @@ extends CharacterBody2D
 @export var gravity_scale: float = 0.5
 @export var wall_slide_speed: float = 50.0 # Max falling speed when sliding on wall
 @export var max_movement_cooldown: float = 200.0 # Time in milliseconds before player can move again
-@export var damage_cooldown_time: float = 0.25 # Cooldown in seconds between damage applications
 
 var spawn_position: Vector2
 var movement_cooldown: float = 0.0 # Time in milliseconds before player can move again
 var is_attacking: bool = false
-var damage_cooldown: float = 0.0
 
 func _ready() -> void:
+	add_to_group("player")
+
 	# Store the initial spawn position
 	spawn_position = global_position
 	
@@ -31,12 +31,8 @@ func _ready() -> void:
 		$Body/AnimationPlayer.animation_finished.connect(_on_animation_finished)
 
 func _physics_process(delta: float) -> void:
-	# Update damage cooldown
-	if damage_cooldown > 0:
-		damage_cooldown -= delta
-
 	# Check for attack input
-	if Input.is_action_just_pressed("attack") and not is_attacking and damage_cooldown <= 0:
+	if Input.is_action_just_pressed("attack") and not is_attacking:
 		start_attack()
 
 	# Check if player is on a wall (not on floor)
@@ -106,6 +102,8 @@ func reset_position() -> void:
 
 func apply_damage() -> void:
 	"""Apply damage to the player. For now, just resets position."""
+	# TODO: Implement proper damage logic
+	# For now, just reset position
 	reset_position()
 
 func start_attack() -> void:
@@ -119,10 +117,8 @@ func perform_attack_hitcheck() -> void:
 	"""Perform a hit check for the attack."""
 	var hitbox = $Body/AttackHitbox
 
-	var hit_enemies = hitbox.get_overlapping_bodies()
-	for enemy in hit_enemies:
-		if enemy.is_in_group("enemies"):
-			enemy.apply_damage()
-
-	is_attacking = false
-	$Body/AttackHitbox.monitoring = false
+	var overlapping_bodies = hitbox.get_overlapping_bodies()
+	for body in overlapping_bodies:
+		# TODO: Maybe handle through a class/inferface later?
+		if body.is_in_group("enemies"):
+			body.apply_damage()

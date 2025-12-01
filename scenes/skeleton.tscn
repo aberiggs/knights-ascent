@@ -1,7 +1,10 @@
-[gd_scene load_steps=15 format=3 uid="uid://rurtw1bauswm"]
+[gd_scene load_steps=20 format=3 uid="uid://rurtw1bauswm"]
 
 [ext_resource type="Texture2D" uid="uid://c53vqhqypqgiy" path="res://assets/sprite_sheets/Characters/Enemies/Skeleton.png" id="1_pbvs3"]
 [ext_resource type="Script" uid="uid://dixqu4cuo1e2b" path="res://scripts/enemy.gd" id="1_txkty"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_w4hcs"]
+size = Vector2(6, 8)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ssl1b"]
 atlas = ExtResource("1_pbvs3")
@@ -82,31 +85,144 @@ animations = [{
 "texture": SubResource("AtlasTexture_5pgwy")
 }],
 "loop": true,
-"name": &"default",
+"name": &"idle",
 "speed": 5.0
 }]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_w4hcs"]
+[sub_resource type="Animation" id="Animation_bnirc"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:animation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [&"default"]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimatedSprite2D:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_txkty"]
+resource_name = "attack"
+length = 0.6
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:animation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [&"attack"]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimatedSprite2D:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("..")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.4),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"perform_attack_hitcheck"
+}]
+}
+
+[sub_resource type="Animation" id="Animation_ivqcw"]
+resource_name = "idle"
+length = 0.8
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:animation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [&"idle"]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimatedSprite2D:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.4, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_5pgwy"]
+_data = {
+&"RESET": SubResource("Animation_bnirc"),
+&"attack": SubResource("Animation_txkty"),
+&"idle": SubResource("Animation_ivqcw")
+}
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_txkty"]
 size = Vector2(6, 8)
 
-[node name="Skeleton" type="CharacterBody2D" node_paths=PackedStringArray("raycast", "animated_sprite")]
+[node name="Skeleton" type="CharacterBody2D" node_paths=PackedStringArray("raycast")]
 script = ExtResource("1_txkty")
-raycast = NodePath("RayCast2D")
-animated_sprite = NodePath("AnimatedSprite2D")
-
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-texture_filter = 1
-position = Vector2(0, -9)
-sprite_frames = SubResource("SpriteFrames_ssl1b")
-animation = &"attack"
-autoplay = "default"
-frame = 5
-frame_progress = 1.0
+raycast = NodePath("Body/RayCast2D")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -4)
 shape = SubResource("RectangleShape2D_w4hcs")
 
-[node name="RayCast2D" type="RayCast2D" parent="."]
+[node name="Body" type="Node2D" parent="."]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Body"]
+texture_filter = 1
+position = Vector2(0, -9)
+sprite_frames = SubResource("SpriteFrames_ssl1b")
+
+[node name="RayCast2D" type="RayCast2D" parent="Body"]
 position = Vector2(4, 0)
 target_position = Vector2(0, 1)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Body"]
+libraries = {
+&"": SubResource("AnimationLibrary_5pgwy")
+}
+autoplay = "idle"
+
+[node name="AttackHitbox" type="Area2D" parent="Body"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Body/AttackHitbox"]
+position = Vector2(8, -4)
+shape = SubResource("RectangleShape2D_txkty")
