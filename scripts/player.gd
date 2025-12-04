@@ -1,4 +1,4 @@
-extends CharacterBody2D
+class_name Player extends CharacterBody2D
 
 
 @export var speed: float = 75.0
@@ -6,24 +6,16 @@ extends CharacterBody2D
 @export var gravity_scale: float = 0.5
 @export var wall_slide_speed: float = 50.0 # Max falling speed when sliding on wall
 @export var max_movement_cooldown: float = 200.0 # Time in milliseconds before player can move again
+@export var attack_speed: float = 1.0 # Speed of the attack animation
 
 var spawn_position: Vector2
 var movement_cooldown: float = 0.0 # Time in milliseconds before player can move again
 var is_attacking: bool = false
+var is_alive: bool = true
 
 func _ready() -> void:
-	add_to_group("player")
-
 	# Store the initial spawn position
 	spawn_position = global_position
-	
-	# Connect to bottom boundary if it exists
-	# Find the bottom boundary in the scene tree
-	var scene_root = get_tree().current_scene
-	if scene_root:
-		var bottom_boundary = scene_root.get_node_or_null("BottomBoundary")
-		if bottom_boundary and bottom_boundary.has_signal("body_entered"):
-			bottom_boundary.body_entered.connect(_on_bottom_boundary_body_entered)
 
 	# Connect to animation finished signal if animation player exists
 	if $Body/AnimationPlayer:
@@ -31,6 +23,14 @@ func _ready() -> void:
 		$Body/AnimationPlayer.animation_finished.connect(_on_animation_finished)
 
 func _physics_process(delta: float) -> void:
+	if not is_alive:
+		velocity.x = 0
+		# Apply gravity even if it's considered dead
+		if not is_on_floor():
+			velocity += get_gravity() * delta
+		move_and_slide()
+		return
+
 	# Check for attack input
 	if Input.is_action_just_pressed("attack") and not is_attacking:
 		start_attack()
@@ -81,19 +81,28 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 func _on_bottom_boundary_body_entered(body: Node2D) -> void:
-	# Reset position when player enters the bottom boundary
 	if body == self:
-		reset_position()
+		die()
+	else:
+		body.die()
 
 func _on_animation_finished(anim_name: String) -> void:
 	"""Called when an animation finishes. Reset to idle animation."""
-	if $Body/AnimationPlayer and $Body/AnimationPlayer.has_animation("idle"):
-		$Body/AnimationPlayer.play("idle")
+	if not $Body/AnimationPlayer:
+		return
 
-	if $Body/AnimationPlayer and anim_name == "attack":
+	if anim_name == "attack":
 		# Reset attack state
 		is_attacking = false
 		$Body/AttackHitbox.monitoring = false
+
+	if anim_name == "die":
+		# Reset player state
+		reset_position()
+		is_alive = true
+
+	if $Body/AnimationPlayer.has_animation("idle"):
+		$Body/AnimationPlayer.play("idle")
 
 func reset_position() -> void:
 	"""Reset player to spawn position and stop velocity."""
@@ -102,15 +111,20 @@ func reset_position() -> void:
 
 func apply_damage() -> void:
 	"""Apply damage to the player. For now, just resets position."""
-	# TODO: Implement proper damage logic
-	# For now, just reset position
-	reset_position()
+	# For now, the player will die in 1 hit
+	if is_alive:
+		die()
+
+func die() -> void:
+	"""What happens when the player dies?"""
+	is_alive = false
+	$Body/AnimationPlayer.play("die")
 
 func start_attack() -> void:
 	"""Start the attack animation and freeze movement."""
 	if $Body/AnimationPlayer and $Body/AnimationPlayer.has_animation("attack"):
 		is_attacking = true
-		$Body/AnimationPlayer.play("attack")
+		$Body/AnimationPlayer.play("attack", -1, attack_speed)
 		$Body/AttackHitbox.monitoring = true
 
 func perform_attack_hitcheck() -> void:
@@ -120,5 +134,5 @@ func perform_attack_hitcheck() -> void:
 	var overlapping_bodies = hitbox.get_overlapping_bodies()
 	for body in overlapping_bodies:
 		# TODO: Maybe handle through a class/inferface later?
-		if body.is_in_group("enemies"):
+		if body is Enemy:
 			body.apply_damage()

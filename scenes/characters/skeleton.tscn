@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://rurtw1bauswm"]
+[gd_scene load_steps=25 format=3 uid="uid://rurtw1bauswm"]
 
 [ext_resource type="Texture2D" uid="uid://c53vqhqypqgiy" path="res://assets/sprite_sheets/Characters/Enemies/Skeleton.png" id="1_pbvs3"]
 [ext_resource type="Script" uid="uid://dixqu4cuo1e2b" path="res://scripts/enemy.gd" id="1_txkty"]
@@ -29,6 +29,22 @@ region = Rect2(96, 144, 24, 24)
 [sub_resource type="AtlasTexture" id="AtlasTexture_7e1v2"]
 atlas = ExtResource("1_pbvs3")
 region = Rect2(120, 144, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rjsi3"]
+atlas = ExtResource("1_pbvs3")
+region = Rect2(0, 264, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3nhjk"]
+atlas = ExtResource("1_pbvs3")
+region = Rect2(24, 264, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ghshk"]
+atlas = ExtResource("1_pbvs3")
+region = Rect2(48, 264, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e85v8"]
+atlas = ExtResource("1_pbvs3")
+region = Rect2(72, 264, 24, 24)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_txkty"]
 atlas = ExtResource("1_pbvs3")
@@ -73,6 +89,23 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_rjsi3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3nhjk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ghshk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e85v8")
+}],
+"loop": true,
+"name": &"die",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_txkty")
 }, {
 "duration": 1.0,
@@ -91,30 +124,6 @@ animations = [{
 
 [sub_resource type="Animation" id="Animation_bnirc"]
 length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("AnimatedSprite2D:animation")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [&"default"]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("AnimatedSprite2D:frame")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [0]
-}
 
 [sub_resource type="Animation" id="Animation_txkty"]
 resource_name = "attack"
@@ -150,9 +159,12 @@ tracks/2/path = NodePath("..")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0.4),
-"transitions": PackedFloat32Array(1),
+"times": PackedFloat32Array(0.4, 0.5),
+"transitions": PackedFloat32Array(1, 1),
 "values": [{
+"args": [],
+"method": &"perform_attack_hitcheck"
+}, {
 "args": [],
 "method": &"perform_attack_hitcheck"
 }]
@@ -186,10 +198,39 @@ tracks/1/keys = {
 "values": [0, 1, 2, 3]
 }
 
+[sub_resource type="Animation" id="Animation_5pgwy"]
+resource_name = "die"
+length = 0.8
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:animation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [&"die"]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimatedSprite2D:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.4, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_5pgwy"]
 _data = {
 &"RESET": SubResource("Animation_bnirc"),
 &"attack": SubResource("Animation_txkty"),
+&"die": SubResource("Animation_5pgwy"),
 &"idle": SubResource("Animation_ivqcw")
 }
 
@@ -210,6 +251,7 @@ shape = SubResource("RectangleShape2D_w4hcs")
 texture_filter = 1
 position = Vector2(0, -9)
 sprite_frames = SubResource("SpriteFrames_ssl1b")
+animation = &"die"
 
 [node name="RayCast2D" type="RayCast2D" parent="Body"]
 position = Vector2(4, 0)
