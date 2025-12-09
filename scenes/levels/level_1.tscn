@@ -412,11 +412,12 @@ script = ExtResource("6_oc4kc")
 player = NodePath("../Player")
 
 [node name="Player" parent="." instance=ExtResource("4_x42e6")]
-position = Vector2(32, -296)
+position = Vector2(32, -248)
 gravity_scale = 0.55
 wall_slide_speed = 75.0
 
 [node name="BottomBoundary" type="Area2D" parent="."]
+collision_mask = 2
 script = ExtResource("8_qxy0u")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="BottomBoundary"]
@@ -424,9 +425,10 @@ position = Vector2(128, 160)
 shape = SubResource("WorldBoundaryShape2D_x42e6")
 
 [node name="Skeleton" parent="." instance=ExtResource("8_s8va5")]
-position = Vector2(64, -288)
+position = Vector2(152, -288)
+max_pace_distance = 20.0
 
 [node name="Dragon" parent="." instance=ExtResource("9_dga24")]
-position = Vector2(152, -96)
+position = Vector2(160, -96)
 speed = 20.0
 max_pace_distance = 20.0

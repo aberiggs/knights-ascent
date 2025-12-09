@@ -45,7 +45,7 @@ func _physics_process(delta: float) -> void:
 	elif movement_cooldown > 0:
 		movement_cooldown -= delta * 1000
 
-	# Handle gravity - reduce gravity when wall sliding
+	# Handle gravity
 	if not is_on_floor():
 		velocity += get_gravity() * delta * gravity_scale
 

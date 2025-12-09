@@ -171,7 +171,7 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_qhqgy"]
-size = Vector2(8, 10)
+size = Vector2(15, 10)
 
 [sub_resource type="Animation" id="Animation_dqkch"]
 length = 0.001
@@ -311,6 +311,7 @@ _data = {
 }
 
 [node name="Player" type="CharacterBody2D"]
+collision_layer = 2
 script = ExtResource("1_g2els")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -327,9 +328,10 @@ animation = &"sword_swing"
 frame = 5
 
 [node name="AttackHitbox" type="Area2D" parent="Body"]
+collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Body/AttackHitbox"]
-position = Vector2(7, -5)
+position = Vector2(3.5, -5)
 shape = SubResource("RectangleShape2D_qhqgy")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Body"]
